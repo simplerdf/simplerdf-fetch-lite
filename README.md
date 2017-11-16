@@ -2,7 +2,7 @@
 
 [Fetch](https://fetch.spec.whatwg.org/) plugin for SimpleRDF to send and receive SimpleRDF objects.
 This package doesn't contain any parsers and serializers.
-[simplerdf-fetch]() comes out of the box with support for the most common formats.  
+[simplerdf-fetch](https://github.com/simplerdf/simplerdf-fetch) comes out of the box with support for the most common formats.  
 
 ## Usage
 
