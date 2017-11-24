@@ -110,7 +110,7 @@ describe('simplerdf-fetch-lite', () => {
           }
         })
       }).then((res) => {
-        const plugins = res.simple._plugins.map(p => p.name).sort()
+        const plugins = res.body._plugins.map(p => p.name).sort()
 
         assert.deepEqual(plugins, ['SimpleFetch', 'SimpleRDF'])
       })
@@ -131,7 +131,7 @@ describe('simplerdf-fetch-lite', () => {
           }
         })
       }).then((res) => {
-        const plugins = res.simple._plugins.map(p => p.name).sort()
+        const plugins = res.body._plugins.map(p => p.name).sort()
 
         assert.deepEqual(plugins, ['SimpleFetch', 'SimpleRDF'])
 
@@ -155,7 +155,7 @@ describe('simplerdf-fetch-lite', () => {
         })
       }
 
-      let simple = new Simple({predicate: 'http://example.org/predicate'}, 'http://example.org/subject')
+      const simple = new Simple({predicate: 'http://example.org/predicate'}, 'http://example.org/subject')
 
       simple.predicate = 'object'
 
@@ -166,7 +166,7 @@ describe('simplerdf-fetch-lite', () => {
       })
     })
 
-    it('should receive the Simple object', () => {
+    it('should receive a SimpleRDF object in res.body', () => {
       nock('http://example.org')
         .get('/receive-body')
         .reply(200, function (url, body) {
@@ -185,7 +185,7 @@ describe('simplerdf-fetch-lite', () => {
       }
 
       return SimpleFetch.fetch('http://example.org/receive-body', {formats: customFormats}).then((res) => {
-        const graphString = res.simple.graph().toString().trim()
+        const graphString = res.body.graph().toString().trim()
 
         assert.equal(graphString, '<http://example.org/subject> <http://example.org/predicate> "object" .')
       })
@@ -217,7 +217,7 @@ describe('simplerdf-fetch-lite', () => {
       }
 
       return SimpleFetch.fetch('http://example.org/context-options', options).then((res) => {
-        assert.deepEqual(res.simple.context()._json, {predicate: 'http://example.org/predicate'})
+        assert.deepEqual(res.body.context()._json, {predicate: 'http://example.org/predicate'})
       })
     })
 
@@ -242,7 +242,7 @@ describe('simplerdf-fetch-lite', () => {
       SimpleFetch.defaults.context = {predicate: 'http://example.org/predicate'}
 
       return SimpleFetch.fetch('http://example.org/context-options', {formats: customFormats}).then((res) => {
-        assert.deepEqual(res.simple.context()._json, {predicate: 'http://example.org/predicate'})
+        assert.deepEqual(res.body.context()._json, {predicate: 'http://example.org/predicate'})
 
         SimpleFetch.defaults.context = null
       })
@@ -267,7 +267,7 @@ describe('simplerdf-fetch-lite', () => {
       }
 
       return SimpleFetch.fetch('http://example.org/iri-request-url', {formats: customFormats}).then((res) => {
-        assert.equal(res.simple.iri().toString(), 'http://example.org/iri-request-url')
+        assert.equal(res.body.iri().toString(), 'http://example.org/iri-request-url')
       })
     })
 
@@ -294,7 +294,55 @@ describe('simplerdf-fetch-lite', () => {
       }
 
       return SimpleFetch.fetch('http://example.org/iri-content-location', {formats: customFormats}).then((res) => {
-        assert.equal(res.simple.iri().toString(), 'http://example.org/iri')
+        assert.equal(res.body.iri().toString(), 'http://example.org/iri')
+      })
+    })
+
+    it('should send the raw body if rawRequest is true', () => {
+      nock('http://example.org')
+        .post('/send-raw-body')
+        .reply(200, function (url, body) {
+          assert.equal(body.trim(), 'test')
+        })
+
+      const customFormats = {
+        parsers: new rdf.Parsers({
+          'application/n-triples': formats.parsers['application/n-triples']
+        }),
+        serializers: new rdf.Serializers({
+          'application/n-triples': formats.serializers['application/n-triples']
+        })
+      }
+
+      return SimpleFetch.fetch('http://example.org/send-raw-body', {
+        formats: customFormats,
+        method: 'post',
+        body: 'test',
+        rawRequest: true
+      })
+    })
+
+    it('should receive the raw body if rawResponse is true', () => {
+      nock('http://example.org')
+        .get('/receive-raw-body')
+        .reply(200, function (url, body) {
+          return [200, 'test']
+        })
+
+      const customFormats = {
+        parsers: new rdf.Parsers({
+          'application/n-triples': formats.parsers['application/n-triples']
+        }),
+        serializers: new rdf.Serializers({
+          'application/n-triples': formats.serializers['application/n-triples']
+        })
+      }
+
+      return SimpleFetch.fetch('http://example.org/receive-raw-body', {
+        formats: customFormats,
+        rawResponse: true
+      }).then(res => res.text()).then((body) => {
+        assert.equal(body, 'test')
       })
     })
   })
@@ -318,7 +366,7 @@ describe('simplerdf-fetch-lite', () => {
       })
 
       return instance.fetch().then((res) => {
-        const plugins = res.simple._plugins.map(p => p.name).sort()
+        const plugins = res.body._plugins.map(p => p.name).sort()
 
         assert.deepEqual(plugins, ['SimpleFetch', 'SimpleRDF'])
       })

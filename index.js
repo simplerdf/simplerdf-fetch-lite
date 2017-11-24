@@ -22,11 +22,15 @@ class SimpleFetch {
     options.context = options.context || SimpleFetch.defaults.context
     options.rdfFetch = options.rdfFetch || SimpleFetch.defaults.rdfFetch
 
-    if (options.body) {
+    if (!options.rawRequest && options.body) {
       options.body = options.body.graph().toStream()
     }
 
     return options.rdfFetch(url, options).then((res) => {
+      if (options.rawResponse) {
+        return res
+      }
+
       if (!res.dataset) {
         return res
       }
@@ -36,9 +40,9 @@ class SimpleFetch {
         let iri = res.headers.get('Content-Location') || url
 
         if (options.simpleFactory) {
-          res.simple = options.simpleFactory(context, iri, dataset)
+          res.body = options.simpleFactory(context, iri, dataset)
         } else {
-          res.simple = new options.Simple(context, iri, dataset)
+          res.body = new options.Simple(context, iri, dataset)
         }
 
         return res
