@@ -217,7 +217,7 @@ describe('simplerdf-fetch-lite', () => {
       }
 
       return SimpleFetch.fetch('http://example.org/context-options', options).then((res) => {
-        assert.deepEqual(res.body.context()._json, {predicate: 'http://example.org/predicate'})
+        assert.equal(res.body.context().description('predicate').predicate.value, 'http://example.org/predicate')
       })
     })
 
@@ -242,7 +242,7 @@ describe('simplerdf-fetch-lite', () => {
       SimpleFetch.defaults.context = {predicate: 'http://example.org/predicate'}
 
       return SimpleFetch.fetch('http://example.org/context-options', {formats: customFormats}).then((res) => {
-        assert.deepEqual(res.body.context()._json, {predicate: 'http://example.org/predicate'})
+        assert.equal(res.body.context().description('predicate').predicate.value, 'http://example.org/predicate')
 
         SimpleFetch.defaults.context = null
       })
