@@ -191,6 +191,23 @@ describe('simplerdf-fetch-lite', () => {
       })
     })
 
+    it('should receive undefined in res.body on 204 response', () => {
+      nock('http://example.org')
+        .get('/receive-no-body')
+        .reply(204, function (url, body) {
+          return [204]
+        })
+
+      const customFormats = {
+        parsers: new rdf.Parsers(),
+        serializers: new rdf.Serializers()
+      }
+
+      return SimpleFetch.fetch('http://example.org/receive-no-body', {formats: customFormats}).then((res) => {
+        assert.equal(typeof res.body, 'undefined')
+      })
+    })
+
     it('should use the context given in options for the received Simple object', () => {
       nock('http://example.org')
         .get('/context-options')

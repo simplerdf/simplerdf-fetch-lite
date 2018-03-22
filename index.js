@@ -32,6 +32,9 @@ class SimpleFetch {
       }
 
       if (!res.dataset) {
+        // if there is no dataset, body should be also undefined
+        delete res.body
+
         return res
       }
 
