@@ -1,6 +1,6 @@
 {
   "name": "simplerdf-fetch-lite",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Plugin for SimpleRDF to send and receive objects using the Fetch API",
   "main": "index.js",
   "scripts": {
